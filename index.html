@@ -4,7 +4,6 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
   <style>
     * {
       box-sizing: border-box;
@@ -263,7 +262,7 @@
       color: #fff;
     }
 
-  /* QUESTION PALETTE */
+    /* QUESTION PALETTE */
 
     .palette {
       display: flex;
@@ -296,29 +295,6 @@
     .palette-btn.current.answered {
       background: #2563eb;
       color: #fff;
-    }
-
-    .mark-review-btn {
-      background: #f59e0b;
-      color: #fff;
-      margin-top: 4px;
-    }
-    .mark-review-btn.marked {
-      background: #92400e;
-    }
-    .palette-btn.reviewed {
-      background: #fef3c7;
-      color: #92400e;
-      border: 2px solid #f59e0b;
-    }
-    .palette-btn.current.reviewed {
-      background: #f59e0b;
-      color: #fff;
-    }
-    .palette-btn.answered.reviewed {
-      background: #fde68a;
-      color: #78350f;
-      border: 2px solid #f59e0b;
     }
 
     /* RESULT */
@@ -633,69 +609,21 @@
     }
 
 
-    /* PULL-CORD BULB THEME SWITCH */
-    .theme-cord-wrap {
+    /* THEME TOGGLE */
+    .theme-toggle {
       position: fixed;
-      top: 0;
-      right: 34px;
+      right: 24px;
+      bottom: 24px;
       z-index: 1000;
-      width: 72px;
-      height: 150px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      user-select: none;
-    }
-    .theme-bulb {
-      width: 42px;
-      height: 42px;
-      border: 0;
-      border-radius: 50% 50% 46% 46%;
+      width: 52px;
+      height: 52px;
       padding: 0;
-      margin-top: 10px;
-      font-size: 22px;
-      background: #fff3b0;
-      color: #6b4f00;
-      box-shadow: 0 0 20px rgba(255, 214, 10, .65);
-      transition: transform .2s ease, filter .25s ease, box-shadow .25s ease;
-    }
-    .theme-cord {
-      width: 3px;
-      height: 58px;
-      background: #64748b;
-      border-radius: 99px;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.05);
-    }
-    .theme-pull {
-      width: 22px;
-      height: 22px;
       border-radius: 50%;
-      padding: 0;
       background: #243b53;
       color: #fff;
-      font-size: 0;
-      position: relative;
-      transition: transform .18s ease, background .25s ease;
+      font-size: 22px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.18);
     }
-    .theme-pull:active { transform: translateY(8px); }
-    .theme-pull::after {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 7px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #fff;
-    }
-    body.dark-mode .theme-bulb {
-      background: #334155;
-      color: #94a3b8;
-      box-shadow: none;
-      filter: grayscale(.55);
-    }
-    body.dark-mode .theme-pull { background: #e2e8f0; }
-    body.dark-mode .theme-pull::after { background: #334155; }
 
     /* CUSTOM SUBMIT MODAL */
     .modal-overlay {
@@ -912,7 +840,7 @@
     }
 
     @media(max-width: 700px) {
-      .theme-cord-wrap { right: 10px; transform: scale(.85); transform-origin: top right; }
+      .theme-toggle { right: 12px; bottom: 14px; width: 48px; height: 48px; }
       .modal-box { padding: 22px 18px; }
       .modal-actions { grid-template-columns: 1fr; }
       .navigation { flex-wrap: wrap; }
@@ -924,11 +852,7 @@
 
 <body>
 
-  <div class="theme-cord-wrap" aria-label="Theme switch">
-    <button id="themeBulb" class="theme-bulb" onclick="toggleTheme()" aria-label="Toggle theme">💡</button>
-    <div class="theme-cord"></div>
-    <button id="themeToggle" class="theme-pull" onclick="toggleTheme()" aria-label="Toggle theme"></button>
-  </div>
+  <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
 
   <div id="submitModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="submitModalTitle">
     <div class="modal-box">
@@ -1057,7 +981,6 @@
       </div>
 
       <div id="optionsContainer"></div>
-      <button id="markReviewBtn" class="mark-review-btn" onclick="toggleMarkForReview()">🔖 Mark for Review</button>
 
       <div class="navigation">
 
@@ -1145,6 +1068,7 @@
       <div class="review-tabs" id="reviewTabs">
         <button class="review-tab active" data-filter="all" onclick="setReviewFilter('all')">📋 All Answers</button>
         <button class="review-tab" data-filter="wrong" onclick="setReviewFilter('wrong')">❌ What's Wrong?</button>
+        <button class="review-tab" data-filter="unanswered" onclick="setReviewFilter('unanswered')">⚪ Not Answered</button>
       </div>
 
       <div id="reviewContainer"></div>
@@ -1169,7 +1093,6 @@
 
   let questions = [];
   let answers = {};
-  let markedForReview = {};
   let currentQuestion = 0;
   let studentName = '';
 
@@ -1189,60 +1112,74 @@
   const REVIEW_PAGE_SIZE = 10;
   let reviewFilter = 'all';
   const EXAM_URL = 'https://tinyurl.com/psc-mock-03';
-  // Paste the Apps Script Web App /exec URL here after deployment.
-const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7uHfZPKk4fHxxOth2Y743mKYo_g0KQ3V1-F0KV0gTXaJd9g/exec';
+
 
   /* INITIAL LOAD */
 
-  async function apiGet(action) {
-    const url = API_URL + (API_URL.includes('?') ? '&' : '?') + 'action=' + encodeURIComponent(action);
-    const response = await fetch(url, { method: 'GET', redirect: 'follow' });
-    const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error || 'API request failed.');
-    return payload.data;
-  }
+  window.onload = function() {
 
-  async function apiPost(action, fields) {
-    const body = new URLSearchParams(Object.assign({ action: action }, fields || {}));
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      body: body,
-      redirect: 'follow'
-    });
-    const payload = await response.json();
-    if (!payload.ok) throw new Error(payload.error || 'API request failed.');
-    return payload.data;
-  }
+    google.script.run
+      .withSuccessHandler(function(status) {
 
-  window.onload = async function() {
-    try {
-      if (API_URL.indexOf('PASTE_YOUR_') === 0) {
-        throw new Error('Apps Script API URL is not configured yet.');
-      }
+        if (status.testMode) {
+          document.getElementById('testBadge')
+            .classList.remove('hidden');
+        }
 
-      const status = await apiGet('status');
-      if (status.testMode) document.getElementById('testBadge').classList.remove('hidden');
+        const statusBox =
+          document.getElementById('examStatus');
 
-      const statusBox = document.getElementById('examStatus');
-      if (status.testMode) {
-        statusBox.innerHTML = '🧪 Test Mode is active. You can start the exam now.';
-      } else if (status.open) {
-        statusBox.innerHTML = '🟢 The exam is currently LIVE!';
-      } else {
-        statusBox.innerHTML = '🔴 Exam is currently closed.';
-        document.getElementById('startBtn').disabled = true;
-      }
+        if (status.testMode) {
 
-      questions = await apiGet('questions');
-      shuffleAllOptions();
-      loadLeaderboard();
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('homeScreen').classList.remove('hidden');
-    } catch (error) {
-      document.getElementById('loadingScreen').innerHTML =
-        '❌ Error: ' + escapeHTML(error.message || String(error));
-    }
+          statusBox.innerHTML =
+            '🧪 Test Mode is active. You can start the exam now.';
+
+        } else if (status.open) {
+
+          statusBox.innerHTML =
+            '🟢 The exam is currently LIVE!';
+
+        } else {
+
+          statusBox.innerHTML =
+            '🔴 Exam is currently closed.';
+
+          document.getElementById('startBtn')
+            .disabled = true;
+        }
+
+      })
+      .getExamStatus();
+
+
+    google.script.run
+      .withSuccessHandler(function(data) {
+
+        questions = data;
+
+        shuffleAllOptions();
+
+        loadLeaderboard();
+
+        document.getElementById('loadingScreen')
+          .classList.add('hidden');
+
+        document.getElementById('homeScreen')
+          .classList.remove('hidden');
+
+      })
+      .withFailureHandler(function(error) {
+
+        document.getElementById('loadingScreen')
+          .innerHTML =
+            '❌ Error: ' +
+            escapeHTML(error.message || String(error));
+
+      })
+      .getQuestions();
+
   };
+
 
   /* SHUFFLE OPTIONS */
 
@@ -1520,28 +1457,20 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
         escapeHTML(option).replace(/\n/g, '<br>') +
         '</span>';
 
-      optionDiv.onclick = function(event) {
-        // Keep the student on the CURRENT question. Do not call
-        // nextQuestion(), change currentQuestion, or re-render the question.
-        if (event) event.stopPropagation();
+      optionDiv.onclick = function() {
 
-        const selected = answers[question.qNo];
+        answers[question.qNo] = option;
+        renderQuestion();
 
-        // Tap the already selected option again to deselect it.
-        if (selected === option) {
-          delete answers[question.qNo];
-        } else {
-          // Select this option. Only the option state changes.
-          answers[question.qNo] = option;
+        // Keep the selection visible briefly, then move to the next question.
+        if (currentQuestion < questions.length - 1) {
+          setTimeout(function() {
+            if (!submitted && answers[question.qNo] === option) {
+              currentQuestion++;
+              renderQuestion();
+            }
+          }, 220);
         }
-
-        // Update option highlight without navigating away.
-        Array.from(optionsContainer.querySelectorAll('.option')).forEach(function(el, i) {
-          el.classList.toggle('selected', answers[question.qNo] === question.options[i]);
-        });
-
-        // Update the question palette state only. No question navigation.
-        renderPalette();
       };
 
       optionsContainer.appendChild(optionDiv);
@@ -1797,14 +1726,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
   }
 
 
-  function toggleMarkForReview() {
-    const question = questions[currentQuestion];
-    if (!question) return;
-    if (markedForReview[question.qNo]) delete markedForReview[question.qNo];
-    else markedForReview[question.qNo] = true;
-    renderQuestion();
-  }
-
   /* QUESTION PALETTE */
 
   function renderPalette() {
@@ -1831,9 +1752,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
 
       if (answers[question.qNo]) {
         btn.classList.add('answered');
-      }
-      if (markedForReview[question.qNo]) {
-        btn.classList.add('reviewed');
       }
 
       btn.onclick = function() {
@@ -1922,15 +1840,25 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
       .innerHTML =
         'Submitting your exam...';
 
-    apiPost('submitExam', {
-      studentName: studentName,
-      answers: JSON.stringify(answers),
-      warnings: String(warnings)
-    }).then(showResult).catch(function(error) {
-      submitted = false;
-      document.getElementById('loadingScreen').innerHTML =
-        '❌ ' + escapeHTML(error.message || String(error));
-    });
+    google.script.run
+      .withSuccessHandler(showResult)
+      .withFailureHandler(function(error) {
+
+        submitted = false;
+
+        document.getElementById('loadingScreen')
+          .innerHTML =
+            '❌ ' +
+            escapeHTML(
+              error.message || String(error)
+            );
+
+      })
+      .submitExam(
+        studentName,
+        answers,
+        warnings
+      );
 
   }
 
@@ -1974,11 +1902,19 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
       });
     }
 
+    if (reviewFilter === 'unanswered') {
+      return review.filter(function(item) {
+        return item.status === 'unanswered';
+      });
+    }
+
     return review;
   }
 
   function setReviewFilter(filter) {
-    reviewFilter = filter === 'wrong' ? 'wrong' : 'all';
+    reviewFilter = ['all', 'wrong', 'unanswered'].includes(filter)
+      ? filter
+      : 'all';
     reviewPage = 0;
 
     document.querySelectorAll('.review-tab').forEach(function(tab) {
@@ -2000,9 +1936,16 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     const review = getFilteredReview_();
 
     if (review.length === 0) {
-      reviewContainer.innerHTML = reviewFilter === 'wrong'
-        ? '<div class="review-item review-correct">🎉 Great! You have no wrong answers.</div>'
-        : '<div class="review-item">No answers available.</div>';
+      let emptyMessage = 'No answers available.';
+
+      if (reviewFilter === 'wrong') {
+        emptyMessage = '🎉 Great! You have no wrong answers.';
+      } else if (reviewFilter === 'unanswered') {
+        emptyMessage = '🎉 Great! You answered all questions.';
+      }
+
+      reviewContainer.innerHTML =
+        '<div class="review-item review-correct">' + emptyMessage + '</div>';
       pager.classList.add('hidden');
       return;
     }
@@ -2184,34 +2127,37 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     const container = document.getElementById(id);
     if (!container) return;
 
-    apiGet('leaderboard').then(function(data) {
-      container.innerHTML = '';
+    google.script.run
+      .withSuccessHandler(function(data) {
+        container.innerHTML = '';
 
-      if (!data || data.length === 0) {
-        container.innerHTML = '<div class="center">No results yet.</div>';
-        return;
-      }
+        if (!data || data.length === 0) {
+          container.innerHTML = '<div class="center">No results yet.</div>';
+          return;
+        }
 
-      data.forEach(function(item) {
-        const row = document.createElement('div');
-        row.className = 'leader-row';
+        data.forEach(function(item) {
+          const row = document.createElement('div');
+          row.className = 'leader-row';
 
-        let medal = '🔹';
-        if (item.rank === 1) medal = '🥇';
-        else if (item.rank === 2) medal = '🥈';
-        else if (item.rank === 3) medal = '🥉';
+          let medal = '🔹';
+          if (item.rank === 1) medal = '🥇';
+          else if (item.rank === 2) medal = '🥈';
+          else if (item.rank === 3) medal = '🥉';
 
-        row.innerHTML = `
-          <div class="rank">${medal} ${item.rank}</div>
-          <div>${escapeHTML(item.name)}</div>
-          <div class="score">${Number(item.score || 0).toFixed(2)}</div>
-        `;
-        container.appendChild(row);
-      });
-    }).catch(function(error) {
-      container.innerHTML = '<div class="center">Leaderboard unavailable.</div>';
-      console.error('Leaderboard error:', error);
-    });
+          row.innerHTML = `
+            <div class="rank">${medal} ${item.rank}</div>
+            <div>${escapeHTML(item.name)}</div>
+            <div class="score">${Number(item.score || 0).toFixed(2)}</div>
+          `;
+          container.appendChild(row);
+        });
+      })
+      .withFailureHandler(function(error) {
+        container.innerHTML = '<div class="center">Leaderboard unavailable.</div>';
+        console.error('Leaderboard error:', error);
+      })
+      .getLeaderboard();
   }
 
   /* EXIT / TAB SWITCH DETECTION */
@@ -2277,11 +2223,11 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
   function applyTheme(theme) {
     const dark = theme === 'dark';
     document.body.classList.toggle('dark-mode', dark);
-    const bulb = document.getElementById('themeBulb');
-    const pull = document.getElementById('themeToggle');
-    if (bulb) bulb.textContent = dark ? '🌑' : '💡';
-    if (bulb) bulb.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-    if (pull) pull.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    document.getElementById('themeToggle').textContent = dark ? '☀️' : '🌙';
+    document.getElementById('themeToggle').setAttribute(
+      'aria-label',
+      dark ? 'Switch to light mode' : 'Switch to dark mode'
+    );
   }
 
   function toggleTheme() {
