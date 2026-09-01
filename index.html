@@ -1520,18 +1520,28 @@
         escapeHTML(option).replace(/\n/g, '<br>') +
         '</span>';
 
-      optionDiv.onclick = function() {
-        // Tap the same selected option again to clear it.
-        if (answers[question.qNo] === option) {
+      optionDiv.onclick = function(event) {
+        // Keep the student on the CURRENT question. Do not call
+        // nextQuestion(), change currentQuestion, or re-render the question.
+        if (event) event.stopPropagation();
+
+        const selected = answers[question.qNo];
+
+        // Tap the already selected option again to deselect it.
+        if (selected === option) {
           delete answers[question.qNo];
-          renderQuestion();
-          return;
+        } else {
+          // Select this option. Only the option state changes.
+          answers[question.qNo] = option;
         }
 
-        // Select this option and stay on the same question.
-        // The student can tap it again later to deselect it.
-        answers[question.qNo] = option;
-        renderQuestion();
+        // Update option highlight without navigating away.
+        Array.from(optionsContainer.querySelectorAll('.option')).forEach(function(el, i) {
+          el.classList.toggle('selected', answers[question.qNo] === question.options[i]);
+        });
+
+        // Update the question palette state only. No question navigation.
+        renderPalette();
       };
 
       optionsContainer.appendChild(optionDiv);
