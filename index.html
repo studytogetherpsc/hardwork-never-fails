@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
   <style>
     * {
       box-sizing: border-box;
@@ -1189,7 +1189,8 @@
   let reviewFilter = 'all';
   const EXAM_URL = 'https://tinyurl.com/psc-mock-03';
   // Paste the Apps Script Web App /exec URL here after deployment.
-const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7uHfZPKk4fHxxOth2Y743mKYo_g0KQ3V1-F0KV0gTXaJd9g/exec';
+  const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
 
   /* INITIAL LOAD */
 
@@ -1527,18 +1528,10 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
           return;
         }
 
+        // Select this option and stay on the same question.
+        // The student can tap it again later to deselect it.
         answers[question.qNo] = option;
         renderQuestion();
-
-        // Keep the selection visible briefly, then move to the next question.
-        if (currentQuestion < questions.length - 1) {
-          setTimeout(function() {
-            if (!submitted && answers[question.qNo] === option) {
-              currentQuestion++;
-              renderQuestion();
-            }
-          }, 220);
-        }
       };
 
       optionsContainer.appendChild(optionDiv);
