@@ -1144,6 +1144,7 @@
       <div class="review-tabs" id="reviewTabs">
         <button class="review-tab active" data-filter="all" onclick="setReviewFilter('all')">📋 All Answers</button>
         <button class="review-tab" data-filter="wrong" onclick="setReviewFilter('wrong')">❌ What's Wrong?</button>
+        <button class="review-tab" data-filter="unanswered" onclick="setReviewFilter('unanswered')">⚪ Not Answered</button>
       </div>
 
       <div id="reviewContainer"></div>
@@ -1963,11 +1964,17 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
       });
     }
 
+    if (reviewFilter === 'unanswered') {
+      return review.filter(function(item) {
+        return item.status === 'unanswered';
+      });
+    }
+
     return review;
   }
 
   function setReviewFilter(filter) {
-    reviewFilter = filter === 'wrong' ? 'wrong' : 'all';
+    reviewFilter = ['wrong', 'unanswered'].includes(filter) ? filter : 'all';
     reviewPage = 0;
 
     document.querySelectorAll('.review-tab').forEach(function(tab) {
@@ -1989,9 +1996,13 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     const review = getFilteredReview_();
 
     if (review.length === 0) {
-      reviewContainer.innerHTML = reviewFilter === 'wrong'
-        ? '<div class="review-item review-correct">🎉 Great! You have no wrong answers.</div>'
-        : '<div class="review-item">No answers available.</div>';
+      if (reviewFilter === 'wrong') {
+        reviewContainer.innerHTML = '<div class="review-item review-correct">🎉 Great! You have no wrong answers.</div>';
+      } else if (reviewFilter === 'unanswered') {
+        reviewContainer.innerHTML = '<div class="review-item review-correct">🎉 Great! You answered all questions.</div>';
+      } else {
+        reviewContainer.innerHTML = '<div class="review-item">No answers available.</div>';
+      }
       pager.classList.add('hidden');
       return;
     }
