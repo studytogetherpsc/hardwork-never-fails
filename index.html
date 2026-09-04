@@ -2082,7 +2082,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     if (!latestResult) return '';
     return [
       '💪 Hardwork Never Fails',
-      'Mock Exam 03',
+      'Mock Exam 04',
       '',
       '👤 ' + studentName,
       '📊 PSC Score: ' + Number(latestResult.score || 0).toFixed(2),
@@ -2119,7 +2119,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     ctx.font = 'bold 52px Arial';
     ctx.fillText('💪 Hardwork Never Fails', 540, 130);
     ctx.font = 'bold 38px Arial';
-    ctx.fillText('Mock Exam 03', 540, 195);
+    ctx.fillText('Mock Exam 04', 540, 195);
 
     ctx.font = 'bold 96px Arial';
     ctx.fillStyle = '#2563eb';
@@ -2160,7 +2160,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
-            title: 'Hardwork Never Fails, Mock Exam 03',
+            title: 'Hardwork Never Fails, Mock Exam 04',
             text: getShareText(),
             files: [file]
           });
