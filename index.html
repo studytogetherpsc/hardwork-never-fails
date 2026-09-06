@@ -569,6 +569,32 @@
     }
 
 
+    /* EXAM SUBMITTING OVERLAY */
+    .submit-loading-overlay {
+      position: fixed; inset: 0; z-index: 5000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 22px; background: rgba(15, 23, 42, .72);
+      backdrop-filter: blur(6px);
+    }
+    .submit-loading-box {
+      width: min(390px, 100%); padding: 32px 26px; border-radius: 24px;
+      background: #ffffff; color: #1f2937; text-align: center;
+      box-shadow: 0 24px 70px rgba(0,0,0,.28);
+    }
+    .submit-spinner {
+      width: 58px; height: 58px; margin: 0 auto 20px;
+      border: 5px solid #dbeafe; border-top-color: #2563eb;
+      border-radius: 50%; animation: submitSpin .85s linear infinite;
+    }
+    @keyframes submitSpin { to { transform: rotate(360deg); } }
+    .submit-loading-box h3 { margin: 0 0 10px; font-size: 22px; color: #243b53; }
+    .submit-loading-box p { margin: 0; line-height: 1.6; color: #64748b; }
+    body.dark-mode .submit-loading-box { background: #1f2937; color: #f8fafc; border: 1px solid #475569; }
+    body.dark-mode .submit-loading-box h3 { color: #f8fafc; }
+    body.dark-mode .submit-loading-box p { color: #cbd5e1; }
+    body.dark-mode .submit-spinner { border-color: #334155; border-top-color: #60a5fa; }
+
+
     /* FULLSCREEN RESUME OVERLAY */
     .fullscreen-resume {
       position: fixed;
@@ -970,6 +996,15 @@
 </head>
 
 <body>
+
+  <div id="submitLoadingOverlay" class="submit-loading-overlay hidden" role="status" aria-live="polite" aria-label="Submitting exam">
+    <div class="submit-loading-box">
+      <div class="submit-spinner"></div>
+      <h3>Submitting your exam...</h3>
+      <p>Please wait while we calculate and save your result.</p>
+    </div>
+  </div>
+
 
   <div class="theme-cord-wrap" aria-label="Theme switch">
     <button id="themeBulb" class="theme-bulb" onclick="toggleTheme()" aria-label="Toggle theme">💡</button>
@@ -1964,16 +1999,13 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
     clearInterval(timerInterval);
     exitExamFullscreen();
 
-    document.getElementById('examScreen')
-      .classList.add('hidden');
+    document.getElementById('examScreen').classList.add('hidden');
 
-    document.getElementById('loadingScreen')
-      .classList.remove('hidden');
+    // Initial loading video is not reused for submission.
+    document.getElementById('loadingScreen').classList.add('hidden');
 
-    document.getElementById('loadingScreen').classList.add('loading-text');
-    document.getElementById('loadingScreen')
-      .innerHTML =
-        'Submitting your exam...';
+    // Dedicated submitting overlay.
+    document.getElementById('submitLoadingOverlay').classList.remove('hidden');
 
     apiPost('submitExam', {
       studentName: studentName,
@@ -1981,9 +2013,11 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
       warnings: String(warnings)
     }).then(showResult).catch(function(error) {
       submitted = false;
-      document.getElementById('loadingScreen').classList.add('loading-text');
-      document.getElementById('loadingScreen').innerHTML =
-        '❌ ' + escapeHTML(error.message || String(error));
+
+      document.getElementById('submitLoadingOverlay').classList.add('hidden');
+      document.getElementById('examScreen').classList.remove('hidden');
+
+      alert('❌ ' + (error.message || String(error)));
     });
 
   }
@@ -1992,6 +2026,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzF0Du7txexUal7juZxrOi7
   /* RESULT */
 
   function showResult(result) {
+
+    document.getElementById('submitLoadingOverlay').classList.add('hidden');
 
     latestResult = result;
     reviewPage = 0;
